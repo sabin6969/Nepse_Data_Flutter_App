@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nepse_data_app/pages/home/bloc/home_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -33,8 +34,11 @@ class _MyHomePageState extends State<MyHomePage> {
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoadingState) {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return ListView.builder(
+              itemCount: 10,
+              itemBuilder: (context, index) {
+                return _shimmerEffect();
+              },
             );
           } else if (state is HomeLoadedState) {
             return RefreshIndicator(
@@ -87,9 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             );
           } else {
-            return const Center(
-              child: Text("Khai k vayo"),
-            );
+            return const Center();
           }
         },
       ),
@@ -148,6 +150,29 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _shimmerEffect() {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 5.w,
+        vertical: 5.h,
+      ),
+      child: Shimmer.fromColors(
+        baseColor: Colors.black12,
+        highlightColor: Colors.white38,
+        child: Container(
+          height: 80.h,
+          decoration: BoxDecoration(
+            color: Colors.grey,
+            borderRadius: BorderRadius.circular(
+              8.sp,
+            ),
+          ),
+          width: double.infinity,
         ),
       ),
     );
