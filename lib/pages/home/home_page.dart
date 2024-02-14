@@ -19,6 +19,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.sizeOf(context);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -48,26 +49,42 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: ListView.builder(
                   itemCount: state.companiesModel.data.length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(
-                        state.companiesModel.data[index].company.name,
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                      subtitle: Text(
-                        "Rs ${state.companiesModel.data[index].price.close.toString()}",
-                      ),
-                      tileColor:
-                          state.companiesModel.data[index].price.diff! < 0
-                              ? Colors.red
-                              : Colors.green,
+                    return _compayDetailWidget(
+                      companyName:
+                          state.companiesModel.data[index].company.name,
+                      ltp: state.companiesModel.data[index].price.close ?? 0,
+                      isNegativeClosing: true,
+                      previousClose:
+                          state.companiesModel.data[index].price.prevClose ?? 0,
                     );
                   },
                 ),
               ),
             );
           } else if (state is HomeErrorState) {
-            return Center(
-              child: Text(state.message),
+            return SizedBox(
+              height: size.height,
+              width: size.width,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    state.message,
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<HomeBloc>().add(HomeLoadDataEvent());
+                    },
+                    child: const Text("Reload"),
+                  )
+                ],
+              ),
             );
           } else {
             return const Center(
@@ -75,6 +92,63 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget _compayDetailWidget({
+    required String companyName,
+    required num ltp,
+    required num previousClose,
+    required bool isNegativeClosing,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+      child: InkWell(
+        child: Ink(
+          decoration: BoxDecoration(
+            color: ltp < previousClose
+                ? Colors.red
+                : ltp == previousClose
+                    ? Colors.grey
+                    : Colors.green,
+            borderRadius: BorderRadius.circular(
+              8.sp,
+            ),
+          ),
+          height: 80.h,
+          width: double.infinity,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 10.w,
+              vertical: 10.h,
+            ),
+            child: ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                Text(
+                  companyName,
+                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                Text(
+                  "Previous close Rs $previousClose",
+                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+                Text(
+                  "Last traded price Rs $ltp",
+                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

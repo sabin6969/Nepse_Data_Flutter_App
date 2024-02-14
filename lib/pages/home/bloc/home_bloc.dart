@@ -25,8 +25,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(HomeLoadedState(companiesModel: data));
     } on TimeoutException catch (e) {
       emit(HomeErrorState(message: e.toString()));
-    } on HandshakeException catch (e) {
-      emit(HomeErrorState(message: e.toString()));
+    } on HandshakeException {
+      emit(HomeErrorState(message: "No internet"));
+    } on SocketException {
+      emit(HomeErrorState(message: "No internet"));
     } catch (e) {
       emit(HomeErrorState(message: e.toString()));
     }
